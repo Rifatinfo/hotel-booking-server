@@ -3,7 +3,7 @@ const express = require('express')
 const cors = require('cors')
 const app = express()
 app.use(cors())
-
+app.use(express.json());
 const port = process.env.port || 5000
 
 
@@ -27,12 +27,25 @@ async function run() {
     // Hotel-Booking
     // all-booking-info
 
-    const hotelBookCollection = client.db("Hotel-Booking").collection("all-booking-info")
+    const hotelBookCollection = client.db("Hotel-Booking").collection("all-booking-info"); 
+    const hotelCartCollection = client.db("Hotel-Booking").collection("booking-cart"); 
     app.get('/all-booking-info', async (req, res) => {
       const result = await hotelBookCollection.find().toArray();
       res.send(result)
     })
+   
+    app.post('/carts' , async (req, res) => {
+     const cartItem = req.body;
+     const result = await hotelCartCollection.insertOne(cartItem)
+     res.send(result);
+    })
 
+    app.get('/carts', async (req, res) => {
+      const email = req.query.email;
+      const query = {email : email}
+      const result = await hotelCartCollection.find(query).toArray();
+      res.send(result);
+    })
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
